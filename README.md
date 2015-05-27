@@ -13,3 +13,10 @@ The features are kept minimal:
   * Computing adhesion via the regular triangulation.
   * Selecting parts of the resulting web structures by either sphere or half-plane.
   * Writing output in ASCII to either Stanford PLY format or Wavefront OBJ. In the last case the density of sheets is written as a texture coordinate. This can be used when loading the OBJ to Blender (www.blender.org).
+
+### building
+To build this program, there is a bash make script included. Just typing:
+ 
+ > ./make all
+ 
+in the project folder will compile all .cc files in ./src and put the .o in a separate directory ./obj. The program is then linked to the executable, which is put in the project folder. If any dependancies are located outside the default search path, you can edit the top lines of the make script to change CFLAGS and LDFLAGS accordingly.
