@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <iterator>
 
 #include <iostream>
 #include <fstream>
@@ -20,6 +21,7 @@
 #include "grf.hh"
 #include "polygon.hh"
 #include "write_obj.hh"
+#include "write_ply.hh"
 #include "sphere.hh"
 #include "select_mesh.hh"
 
@@ -56,15 +58,79 @@ void write_selection(
     fo.close();
 }
 
+vector_ptr<double> flat_potential(BoxParam const &box)
+{
+    return make_vector_ptr<double>(box.size, 1.0);
+}
+
+void save_dual_example(Rt const &T, Point const probe)
+{
+    using PolygonData = std::vector<unsigned>;
+
+    std::map<Rt::Cell_handle,unsigned> cell_index;
+    auto dual_vertices = make_vector_ptr<Point>();
+    auto polygons      = make_vector_ptr<PolygonData>();
+
+    auto stash = [&T, &cell_index, dual_vertices] (
+            Rt::Cell_handle const &h) -> unsigned
+    {
+        if (cell_index.count(h) == 0)
+        {
+            cell_index[h] = dual_vertices->size();
+            dual_vertices->push_back(T.dual(h));
+        }
+
+        return cell_index[h];
+    };
+
+    Rt::Cell_handle c = T.locate(probe);
+    auto v = c->vertex(0);
+    std::vector<Rt::Edge> edges;
+    T.incident_edges(c->vertex(0), std::back_inserter(edges));
+
+    for (auto &e : edges)
+    {
+        std::vector<unsigned> P;
+
+        auto first = T.incident_cells(e), c = first;
+        bool ok = true;
+        do {
+            if (T.is_infinite(++c))
+            {
+                ok = false;
+                break;
+            }
+
+            P.push_back(stash(c));
+        } while (c != first);
+
+        if (ok) polygons->push_back(P);
+    }
+
+    PolygonMesh<Point> M(dual_vertices, polygons);
+    std::ofstream fo1("voronoi.ply");
+    write_ply(fo1, M);
+    fo1.close();
+/*
+    dual_vertices->clear();
+    polygons->clear();
+    cell_index.clear();
+
+    for (auto &f : facets)
+    {
+        std::vector<unsigned> P;
+    }*/
+}
+
 int main() {
     // parameters of the box
-    BoxParam box(64, 10.0);
+    BoxParam box(8, 10.0);
 
     // growing mode solution
     double   D    = 1.0;
 
     // threshold for structure detection
-    double   l_th = 5.0 * box.res_sqr;
+    double   l_th = 0.0; //5.0 * box.res_sqr;
 
     // the power spectrum of the potential
     auto power_spectrum = [] (Vector const &k) -> double
@@ -75,10 +141,11 @@ int main() {
     };
 
     std::cerr << "Generating potential ... ";
-    
+
     // Get a potential function, in this case white noise
     // To get prettier results, use a proper GRF
-    auto phi = generate_potential(box, power_spectrum);
+    //auto phi = generate_potential(box, power_spectrum);
+    auto phi = flat_potential(box);
     //auto phi = read_potential(box);
     //auto phi = from_file(box, "i2456-128.pot.bin");
     std::cerr << "[done]\n";
@@ -97,6 +164,8 @@ int main() {
 
     std::cerr << "Writing files ... ";
         auto sheets_mesh = get_sheets(T, l_th);
+
+    save_dual_example(T, Point(5,5,5));
 
 	Sphere<K> HOME(Point(5,5,5), 5.0);
 	write_selection("example-mesh.obj", sheets_mesh, HOME);

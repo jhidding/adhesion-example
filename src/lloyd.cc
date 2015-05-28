@@ -2,13 +2,11 @@
 
 using namespace Lloyd;
 
-std::function<double ()> Lloyd::poisson_noise(
+std::function<double ()> Lloyd::uniform_noise(
         unsigned long seed)
 {
-    auto random = std::make_shared<
-        std::mt19937>(seed);
-    auto dist   = std::make_shared<
-        std::uniform_real_distribution<double>>();
+    auto random = std::make_shared<std::mt19937>(seed);
+    auto dist   = std::make_shared<std::uniform_real_distribution<double>>();
 
     return [random, dist] () -> double
         { return (*dist)(*random); };
@@ -18,7 +16,7 @@ vector_ptr<Point> Lloyd::make_glass(size_t N, unsigned m)
 {
     Iso_cuboid domain(0, 0, 0, 1.0, 1.0, 1.0);
     auto points = make_vector_ptr<Point>(N);
-    auto noise  = poisson_noise(0);
+    auto noise  = uniform_noise(0);
     for (Point &p : *points)
         p = Point(noise(), noise(), noise());
 

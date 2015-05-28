@@ -21,6 +21,6 @@ namespace Lloyd
     typedef PDT::Point          Point;
     typedef PDT::Iso_cuboid     Iso_cuboid;
 
-    extern std::function<double ()> poisson_noise(unsigned long seed);
+    extern std::function<double ()> uniform_noise(unsigned long seed);
     extern vector_ptr<Point> make_glass(size_t N, unsigned m);
 }
