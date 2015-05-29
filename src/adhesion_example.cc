@@ -68,25 +68,40 @@ void save_dual_example(Rt const &T, Point const probe)
     using PolygonData = std::vector<unsigned>;
 
     std::map<Rt::Cell_handle,unsigned> cell_index;
-    auto dual_vertices = make_vector_ptr<Point>();
+    std::map<Rt::Vertex_handle,unsigned> vertex_index;
+    auto vertices      = make_vector_ptr<Point>();
     auto polygons      = make_vector_ptr<PolygonData>();
 
-    auto stash = [&T, &cell_index, dual_vertices] (
+    auto stash_dual = [&T, &cell_index, vertices] (
             Rt::Cell_handle const &h) -> unsigned
     {
         if (cell_index.count(h) == 0)
         {
-            cell_index[h] = dual_vertices->size();
-            dual_vertices->push_back(T.dual(h));
+            cell_index[h] = vertices->size();
+            vertices->push_back(T.dual(h));
         }
 
         return cell_index[h];
     };
 
+    auto stash_delaunay = [&T, &vertex_index, vertices] (
+            Rt::Vertex_handle const &h) -> unsigned
+    {
+        if (vertex_index.count(h) == 0)
+        {
+            vertex_index[h] = vertices->size();
+            vertices->push_back(T.point(h));
+        }
+
+        return vertex_index[h];
+    };
+
     Rt::Cell_handle c = T.locate(probe);
     auto v = c->vertex(0);
     std::vector<Rt::Edge> edges;
+    std::vector<Rt::Facet> facets;
     T.incident_edges(c->vertex(0), std::back_inserter(edges));
+    T.incident_facets(c->vertex(0), std::back_inserter(facets));
 
     for (auto &e : edges)
     {
@@ -101,25 +116,39 @@ void save_dual_example(Rt const &T, Point const probe)
                 break;
             }
 
-            P.push_back(stash(c));
+            P.push_back(stash_dual(c));
         } while (c != first);
 
         if (ok) polygons->push_back(P);
     }
 
-    PolygonMesh<Point> M(dual_vertices, polygons);
+    PolygonMesh<Point> M1(vertices, polygons);
     std::ofstream fo1("voronoi.ply");
-    write_ply(fo1, M);
+    write_ply(fo1, M1);
     fo1.close();
-/*
-    dual_vertices->clear();
+
+    vertices->clear();
     polygons->clear();
     cell_index.clear();
 
     for (auto &f : facets)
     {
         std::vector<unsigned> P;
-    }*/
+
+        for (unsigned i = 0; i < 4; ++i)
+        {
+            if (i == f.second) continue;
+
+            P.push_back(stash_delaunay(f.first->vertex(i)));
+        }
+
+        polygons->push_back(P);
+    }
+
+    PolygonMesh<Point> M2(vertices, polygons);
+    std::ofstream fo2("delaunay.ply");
+    write_ply(fo2, M2);
+    fo2.close();
 }
 
 int main() {
