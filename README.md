@@ -1,7 +1,13 @@
 # adhesion-example
-This is a short astrophysical program showing howto use CGAL (www.cgal.org) to compute the adhesion model, describing the large-scale structure of the Universe. In addition to the CGAL code, this repository contains some examples in Python offering more intuition into the method.
+This is a short astrophysical program showing howto use weighted Voronoi tessellations compute the adhesion model, describing the large-scale structure of the Universe. This repository contains an example in C++ using [CGAL](www.cgal.org) and some examples in Python (using SciPy) offering more intuition into the method.
 
-### requirements
+> This software emanates from NWO project 614.000.908 supervised by Gert Vegter and Rien van de Weygaert.
+
+## Fair use
+If you use this software in relation to a scientific project, please cite (at least) this repository through the following Zenodo link: [![DOI](https://zenodo.org/badge/36377754.svg)](https://zenodo.org/badge/latestdoi/36377754)
+Also consider citing [doi:10.1145/2261250.2261316](https://doi.org/10.1145/2261250.2261316). A more complete paper (and thesis) outlining the methods used in this code is still in preparation.
+
+## C++/CGAL code
 This program is written in C++, using the 2011 standard. In addition to a recent GCC, to compile and run this example you need to have the development versions of the folowing libraries installed:
   * CGAL
   * FFTW 3.0
