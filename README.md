@@ -7,6 +7,8 @@ This is a short astrophysical program showing howto use weighted Voronoi tessell
 If you use this software in relation to a scientific project, please cite (at least) this repository through the following Zenodo link: [![DOI](https://zenodo.org/badge/36377754.svg)](https://zenodo.org/badge/latestdoi/36377754)
 Also consider citing [doi:10.1145/2261250.2261316](https://doi.org/10.1145/2261250.2261316). A more complete paper (and thesis) outlining the methods used in this code is still in preparation.
 
+![Adhesion streamlines](streamlines.png)
+
 ## C++/CGAL code
 This program is written in C++, using the 2011 standard. In addition to a recent GCC, to compile and run this example you need to have the development versions of the folowing libraries installed:
   * CGAL
