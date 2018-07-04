@@ -38,7 +38,7 @@ def plot_regular_triangulation(ch, selection, xlim=None, ylim=None, ax=None):
         ax.set_xlim(*xlim)
     if ylim:
         ax.set_ylim(*ylim)
-    ax.triplot(x, y, t, linewidth=0.5)
+    ax.triplot(x, y, t, linewidth=1.0)
     
 
 def delaunay_areas(box, ch, selection):
@@ -111,7 +111,7 @@ def plot_power_diagram(box, ch, valid, xlim, ylim, ax=None, point_scale=10):
 
     edge_sel = np.where(m_edge_lengths > np.sqrt(2)*box.res)[0]
     
-    lc_grid = collections.LineCollection(m_edge_points, linewidths=0.5, color='#cccccc')
+    lc_grid = collections.LineCollection(m_edge_points, linewidths=1.0, color='#888888')
     lc = collections.LineCollection(m_edge_points[edge_sel], linewidths=m_edge_lengths[edge_sel], color='maroon')
     lc.set_capstyle('round')
 
@@ -149,3 +149,11 @@ def get_convex_hull(box, pot_0, t):
     selection = np.where(np.dot(ch.equations[:,0:3], [0, 0, -1]) > 0.00001)[0]
     valid = selection[np.where(np.all(np.isin(ch.neighbors[selection], selection), axis=1))[0]]
     return ch, selection, valid
+
+
+def plot_image(box, data, title=None, ax=None):
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+    ax.set_title(title)
+    ax.imshow(data, extent=[-box.L/2, box.L/2, -box.L/2, box.L/2], interpolation='nearest', cmap='RdYlBu')
