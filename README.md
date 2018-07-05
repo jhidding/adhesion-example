@@ -55,3 +55,11 @@ Go to a suitable project folder and create the VirtualEnv
 > jupyter notebook
 ... # browser window should open
 ```
+
+To run in Jupyter notebook, also run the following:
+
+```bash
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install ipyvolume
+jupyter labextension install jupyter-threejs
+```
