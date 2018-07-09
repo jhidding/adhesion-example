@@ -52,6 +52,11 @@ def delaunay_areas(box, ch, selection):
     return np.abs(np.cross(a - b, c - b) / 2)
 
 
+def delaunay_edges(box, ch, selection, valid):
+    edge_simpl = edges(box, ch, valid)
+    return np.array([np.intersect1d(x[0], x[1]) for x in ch.simplices[edge_simpl]])
+
+
 def delaunay_class(box, ch, selection, threshold):
     """Compute the classification of each simplex using the given threshold.
     
