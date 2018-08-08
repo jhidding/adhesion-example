@@ -76,7 +76,7 @@ def delaunay_class(box, ch, selection, threshold):
     """
     pts = ch.points[ch.simplices[selection]][:,:,:box.dim]
     dists2 = ((pts - np.roll(pts, 1, axis=1))**2).sum(axis=2)
-    return np.where(dists2 > threshold, 1, 0).sum(axis=1)
+    return np.where(dists2 > (threshold * box.res)**2, 1, 0).sum(axis=1)
 
 
 def voronoi_points(ch, selection):
@@ -108,7 +108,7 @@ def edge_length(ch, edges):
     return np.sqrt(np.sum((ch.points[edge_verts][:,1,:2] - ch.points[edge_verts][:,0,:2])**2, axis=1))
 
 
-def plot_power_diagram(box, ch, valid, xlim, ylim, ax=None, point_scale=10):
+def plot_power_diagram(box, ch, valid, xlim, ylim, ax=None, point_scale=10, line_scale=1.0, plot_grid=True):
     """Plot the power diagram."""
     m_edges = edges(box, ch, valid)
     m_edge_lengths = edge_length(ch, m_edges)
@@ -116,27 +116,31 @@ def plot_power_diagram(box, ch, valid, xlim, ylim, ax=None, point_scale=10):
 
     edge_sel = np.where(m_edge_lengths > np.sqrt(2)*box.res)[0]
     
-    lc_grid = collections.LineCollection(m_edge_points, linewidths=1.0, color='#888888')
-    lc = collections.LineCollection(m_edge_points[edge_sel], linewidths=m_edge_lengths[edge_sel], color='maroon')
+    if plot_grid:
+        lc_grid = collections.LineCollection(m_edge_points, linewidths=1.0, color='#888888')
+        
+    lc = collections.LineCollection(m_edge_points[edge_sel], linewidths=line_scale*m_edge_lengths[edge_sel], color='maroon')
     lc.set_capstyle('round')
 
     X = voronoi_points(ch, valid)
-    mass = delaunay_areas(box, ch, valid)
+    mass = delaunay_areas(box, ch, valid) / box.res**2
     big_points = np.where(delaunay_class(box, ch, valid, threshold=1.0) > 2)
 
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         
-    ax.add_collection(lc_grid)
+    if plot_grid:
+        ax.add_collection(lc_grid)
+        
     ax.add_collection(lc)
     ax.set_aspect('equal')
     if xlim is not None:
         ax.set_xlim(xlim)
     if ylim is not None:
         ax.set_ylim(ylim)
-    ax.scatter(X[big_points,0], X[big_points,1], s=mass[big_points]**1.5 * point_scale * 1.25, zorder=2, c='black', alpha=0.5)
-    ax.scatter(X[big_points,0], X[big_points,1], s=mass[big_points]**1.5 * point_scale, zorder=4, alpha=0.5)
+    ax.scatter(X[big_points,0], X[big_points,1], s=mass[big_points] * point_scale * 1.25, zorder=2, c='black', alpha=0.5)
+    ax.scatter(X[big_points,0], X[big_points,1], s=mass[big_points] * point_scale, zorder=4, alpha=0.5)
 
     
 def get_convex_hull(box, pot_0, t):
