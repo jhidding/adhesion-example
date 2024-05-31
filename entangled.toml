@@ -1,0 +1,9 @@
+version="2.0"
+watch_list=["docs/**/*.md"]
+hooks=["quatro_attributes", "brei"]
+
+[[languages]]
+name="C++"
+identifiers=["cpp"]
+comment={open="//"}
+

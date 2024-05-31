@@ -8,26 +8,19 @@
 #include <iostream>
 
 template <typename T>
-class FFTW_allocator: public std::allocator<T>
+class FFTW_allocator
 {
     public:
-        typedef T		    value_type;
-        typedef T *	 	    pointer;
-        typedef T &	 	    reference;
-        typedef T const * 	const_pointer;
-        typedef T const &	const_reference;
-        typedef size_t 		size_type;
-        typedef ptrdiff_t 	difference_type;
+        typedef T value_type;
+        typedef size_t size_type;
+        typedef ptrdiff_t difference_type;
 
-        pointer allocate(size_t n, std::allocator<void>::const_pointer hint = 0)
+        T* allocate(size_t n)
         {
-            if (hint != 0)
-                fftw_free(hint);
-
             return reinterpret_cast<T *>(fftw_malloc(n * sizeof(T)));
         }
 
-        void deallocate(pointer p, size_t n)
+        void deallocate(T* p, size_t n)
         {
             fftw_free(p);
         }

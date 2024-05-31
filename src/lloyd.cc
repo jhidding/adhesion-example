@@ -1,4 +1,5 @@
 #include "lloyd.hh"
+#include <random>
 
 using namespace Lloyd;
 

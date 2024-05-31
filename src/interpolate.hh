@@ -2,6 +2,8 @@
 #include "polygon.hh"
 #include "boxparam.hh"
 
+#include <functional>
+
 template <typename Vector>
 std::function<double (Vector const &)> interpolate(
     BoxParam const &box,

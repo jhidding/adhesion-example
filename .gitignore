@@ -1,4 +1,6 @@
 *.npy
+ae
+obj
 
 # Compiled Object files
 *.slo

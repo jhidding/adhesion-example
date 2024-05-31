@@ -34,7 +34,7 @@ extern vector_ptr<Weighted_point> make_points(
         double D);
 
 extern DecoratedMesh<Point, double> get_sheets(
-        Rt const &T,
+        RT const &T,
         double l_th);
 
 vector_ptr<double> from_file(BoxParam const &box, std::string const &fn)
@@ -63,43 +63,44 @@ vector_ptr<double> flat_potential(BoxParam const &box)
     return make_vector_ptr<double>(box.size, 1.0);
 }
 
-void save_dual_example(Rt const &T, Point const probe)
+/*
+void save_dual_example(RT const &T, Point const probe)
 {
     using PolygonData = std::vector<unsigned>;
 
-    std::map<Rt::Cell_handle,unsigned> cell_index;
-    std::map<Rt::Vertex_handle,unsigned> vertex_index;
+    std::map<RT::Cell_handle,unsigned> cell_index;
+    std::map<RT::Vertex_handle,unsigned> vertex_index;
     auto vertices      = make_vector_ptr<Point>();
     auto polygons      = make_vector_ptr<PolygonData>();
 
     auto stash_dual = [&T, &cell_index, vertices] (
-            Rt::Cell_handle const &h) -> unsigned
+            RT::Cell_handle const &h) -> unsigned
     {
         if (cell_index.count(h) == 0)
         {
             cell_index[h] = vertices->size();
-            vertices->push_back(T.dual(h));
+            vertices->emplace_back(T.dual(h));
         }
 
         return cell_index[h];
     };
 
     auto stash_delaunay = [&T, &vertex_index, vertices] (
-            Rt::Vertex_handle const &h) -> unsigned
+            RT::Vertex_handle const &h) -> unsigned
     {
         if (vertex_index.count(h) == 0)
         {
             vertex_index[h] = vertices->size();
-            vertices->push_back(T.point(h));
+            vertices->emplace_back(T.point(h));
         }
 
         return vertex_index[h];
     };
 
-    Rt::Cell_handle c = T.locate(probe);
+    RT::Cell_handle c = T.locate(probe);
     auto v = c->vertex(0);
-    std::vector<Rt::Edge> edges;
-    std::vector<Rt::Facet> facets;
+    std::vector<RT::Edge> edges;
+    std::vector<RT::Facet> facets;
     T.incident_edges(c->vertex(0), std::back_inserter(edges));
     T.incident_facets(c->vertex(0), std::back_inserter(facets));
 
@@ -116,10 +117,10 @@ void save_dual_example(Rt const &T, Point const probe)
                 break;
             }
 
-            P.push_back(stash_dual(c));
+            P.emplace_back(stash_dual(c));
         } while (c != first);
 
-        if (ok) polygons->push_back(P);
+        if (ok) polygons->emplace_back(P);
     }
 
     PolygonMesh<Point> M1(vertices, polygons);
@@ -149,7 +150,7 @@ void save_dual_example(Rt const &T, Point const probe)
     std::ofstream fo2("delaunay.ply");
     write_ply(fo2, M2);
     fo2.close();
-}
+} */
 
 int main() {
     // parameters of the box
@@ -187,14 +188,14 @@ int main() {
 
     // insert all points in a row.
     std::cerr << "Computing the triangulation ... ";
-        Rt T;
+        RT T;
         T.insert(pts->begin(), pts->end());
     std::cerr << " [done]\n";
 
     std::cerr << "Writing files ... ";
         auto sheets_mesh = get_sheets(T, l_th);
 
-    save_dual_example(T, Point(5,5,5));
+    // save_dual_example(T, Point(5,5,5));
 
 	Sphere<K> HOME(Point(5,5,5), 5.0);
 	write_selection("example-mesh.obj", sheets_mesh, HOME);

@@ -2,17 +2,17 @@
 #include "cgal_base.hh"
 
 DecoratedMesh<Point, double> get_sheets(
-        Rt const &T,
+        RT const &T,
         double l_th)
 {
     using PolygonData = Decorated<std::vector<unsigned>, double>;
 
-    std::map<Rt::Cell_handle,unsigned> cell_index;
+    std::map<RT::Cell_handle,unsigned> cell_index;
     auto dual_vertices = make_vector_ptr<Point>();
     auto polygons      = make_vector_ptr<PolygonData>();
 
     auto stash = [&T, &cell_index, dual_vertices] (
-            Rt::Cell_handle const &h) -> unsigned
+            RT::Cell_handle const &h) -> unsigned
     {
         if (cell_index.count(h) == 0)
         {
